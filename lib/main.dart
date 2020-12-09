@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+
+
 void main() => runApp(new SingleImageUpload());
 
 class SingleImageUpload extends StatefulWidget {
@@ -20,6 +22,7 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
   List<int> allIndexSelectedList=List<int>();
   Future<File> _imageFile;
   int tempIndex;
+  List<int> templist=List<int>();
   ImageUploadModel uploadModelTemp;
 
   @override
@@ -36,6 +39,7 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+
       home: new Scaffold(
         appBar: new AppBar(
           centerTitle: true,
@@ -56,14 +60,19 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
                   right: 20,
                   top: 50,
                   child: InkWell(
-                    child: Icon(
+                    child:
+                    Icon(
                       Icons.delete,
                       size: 25,
                       color: Colors.red,
                     ),
                     onTap: () {
                       setState(() {
-                // images.removeAt( images);
+
+                        for(int i=0; i<allIndexSelectedList.length; ++i) {
+                          images.removeAt(allIndexSelectedList[i]);
+                          deleteMultipleImages(images, allIndexSelectedList[i]);
+                        }
                       });
                     },
                   ),
@@ -82,7 +91,7 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
                       //   _upload(uploadModelTemp, tempIndex);
                       // }else{
                         for(int i=0; i<=allIndexSelectedList.length;++i){
-                          _uploadMultiple(images, i);
+                          _uploadMultiple(images, allIndexSelectedList[i]);
 
                       }
 
@@ -145,15 +154,30 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
     });
     Dio dio = new Dio();
     dio.options.headers[HttpHeaders.COOKIE] =
-    "JSONToken=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdXBlcm1hbiIsImF1ZGllbmNlIjoidW5rbm93biIsImNyZWF0ZWQiOjE2MDc0MDg4ODEzODIsImV4cCI6MTYwNzQ1MjA4MSwiZmFjaWxpdHkiOjB9.7gu7NN8FWDCdJ-6SrbSNSXJz3p0LbUceDsuqVjqFNOzSkdQQn8a-WsegLYsXDEHhdsC6jg5rSH-Kb5nEX3NMAA";
+    "JSONToken=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdXBlcm1hbiIsImF1ZGllbmNlIjoidW5rbm93biIsImNyZWF0ZWQiOjE2MDc0ODgyNzUyNjYsImV4cCI6MTYwNzUzMTQ3NSwiZmFjaWxpdHkiOjB9.M06c8QnZMxnYb6QNugiEaQ2Z7m5b1AQn3xH-jYn8uaDG7o1GDJHGbhmrccyRuYiZGZ5Jxa-G5Xl4RjaD7LqIUQ";
     dio.post(endPoint, data: data).then((response) {
-      print("shilpi $response.$data");
+      print("shilpi" +response.data);
       setState(() {
         ImageUploadModel uploadModel = images[index];
         uploadModel.isUploaded = true;
       });
 //_getDocument(response.data);
     }).catchError((error) => {print(error)});
+  }
+
+  Future<void> deleteMultipleImages(List<Object> fileList, index) async {
+    try {
+      ImageUploadModel file1 = fileList[index];
+      var file = File(file1.imageFile.path);
+
+      if (await file.exists()) {
+        // file exits, it is safe to call delete on it
+        await file.delete();
+      }
+
+    } catch (e) {
+      // error in getting access to the file
+    }
   }
 //   void _upload(ImageUploadModel file, index) async {
 //     String fileName = file.imageFile.path.split('/').last;
@@ -232,6 +256,8 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
                       setState(() {
                         print("image selected of index "+index.toString());
                         allIndexSelectedList.add(index);
+                       // allIndexSelectedList.toSet().toList();
+                        // new Collection(allIndexSelectedList).distinct();
                         uploadModel.isSelected=true;
                         tempIndex=index;
                         uploadModelTemp=uploadModel;
@@ -257,12 +283,13 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
             // )
                   uploadModel.isSelected?
                   Positioned(
-                    right: 5,
+                    right: 25,
                     top: 5,
+
                     child: Icon(
-                      Icons.access_time_rounded,
+                      Icons.check_circle_sharp,
                       size: 25,
-                      color: Colors.green,
+                      color: Colors.blue,
                     ),
                   ):Container(),
 
@@ -318,7 +345,7 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
       _imageFile.then((file) {
         if (file != null) {
           setState(() {
-            print(" shilpi filename$_imageFile");
+            print(" shilpi filename"+_imageFile.toString());
             getFileImage(index);
           });
         }
@@ -343,6 +370,7 @@ class _SingleImageUploadState extends State<SingleImageUpload> {
       });
     });
   }
+
 }
 
 class ImageUploadModel {
