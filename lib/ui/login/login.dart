@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -24,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       style: style,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Email",
+          hintText: "Username",
           border:
           OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
@@ -53,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
             Toast.show("Please enter your password", context,
                 duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
           } else {
-            //Navigator.pushNamed(context, RouterConstants.HOME_PAGE);
 
             _loginAuthenticate(usernamecontroller.text, passwordcontroller.text);
           }
@@ -103,19 +103,24 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loginAuthenticate(String username,String password) {
     var url='http://shifajeddah.nuacare.ai/nuacare-core/web/nuacare/v1/session/authenticate';
-    FormData data = FormData.fromMap({
-      "username": username,
-      "password": password,
+    var body=jsonEncode({
+      'username': username,
+      'password': password,
 
     });
-    Dio dio = new Dio();
 
-    dio.options.headers['content-Type'] = 'application/json';
-    dio.post(url, data: data).then((response) {
-      print("shilpi login response=>" +response.data);
-      Toast.show(response.data, context,
-          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-//_getDocument(response.data);
+    Dio dio = new Dio();
+    dio.options.headers['Content-Type'] = 'application/json';
+    dio.post(url, data: body).then((response) {
+      final res = json.encode(response.data);
+      print('$res');
+      if(response.statusCode==200){
+        print('login successfully');
+        Navigator.pushNamed(context, RouterConstants.HOME_PAGE);
+      }else{
+        print('please login again');
+      }
+
     }).catchError((error) => {print(error)});
   }
 }

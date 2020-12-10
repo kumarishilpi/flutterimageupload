@@ -248,8 +248,10 @@ class _HomePageState extends State<HomePage> {
       ),
     });
     Dio dio = new Dio();
+    //dio.options.headers['Content-Type'] = 'application/json';
     dio.options.headers[HttpHeaders.COOKIE] =
     "JSONToken=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdXBlcm1hbiIsImF1ZGllbmNlIjoidW5rbm93biIsImNyZWF0ZWQiOjE2MDc0ODgyNzUyNjYsImV4cCI6MTYwNzUzMTQ3NSwiZmFjaWxpdHkiOjB9.M06c8QnZMxnYb6QNugiEaQ2Z7m5b1AQn3xH-jYn8uaDG7o1GDJHGbhmrccyRuYiZGZ5Jxa-G5Xl4RjaD7LqIUQ";
+
     dio.post(endPoint, data: data).then((response) {
       print("shilpi" +response.data);
       setState(() {
